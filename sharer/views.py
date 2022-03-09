@@ -1,19 +1,15 @@
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
-from django.utils import timezone
-
 from rest_framework import generics, mixins, status
 from rest_framework.decorators import api_view
-from rest_framework.authentication import (TokenAuthentication,
-                                           SessionAuthentication)
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse, reverse_lazy
-from rest_framework.views import APIView
+from rest_framework.reverse import reverse
 
 from .models import UserImage, codemaker, ImageThumb, UserAccountTier
 from .permissions import ExpiryLinksPermission, OriginalImagePermission
-from .serializers import (UserImageSerializer, ImageThumbSerializer, ImageThumbListSerializer, UserImageWithOriginalSerializer, OriginalImageSerializer)
+from .serializers import (UserImageSerializer, ImageThumbSerializer,
+                          UserImageWithOriginalSerializer,
+                          OriginalImageSerializer)
 
 from datetime import timedelta, datetime
 

@@ -1,15 +1,8 @@
 from django.conf import settings
-from django.contrib.auth.models import (AbstractUser, AbstractBaseUser,
-                                        BaseUserManager, User)
+from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
 
 import os, random, string
 from io import BytesIO

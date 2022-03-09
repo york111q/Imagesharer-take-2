@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import AccountTier, UserImage, ImageThumb, Thumbnail, UserAccountTier #MyUser,
+from .models import AccountTier, UserImage, ImageThumb, Thumbnail, UserAccountTier
 
 
 # Register your models here.
@@ -20,5 +20,3 @@ class MyUserAdmin(UserAdmin):
     filter_horizontal = ()
     list_filter = ()
     fieldsets = ()
-
-#admin.site.register(MyUser, MyUserAdmin)
