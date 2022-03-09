@@ -1,7 +1,7 @@
 # My added
-.docx
+*.docx
 /static
-/migrations
+/sharer/migrations
 /media
 venv
 local_settings.py

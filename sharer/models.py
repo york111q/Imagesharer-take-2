@@ -39,7 +39,7 @@ class Thumbnail(models.Model):
     size = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"Thumbnail size: {self.size}px"
+        return f'Thumbnail size: {self.size}px'
 
 
 class AccountTier(models.Model):
@@ -53,12 +53,21 @@ class AccountTier(models.Model):
 
 
 class UserAccountTier(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    account_tier = models.ForeignKey(AccountTier, related_name='users_this_tier', on_delete=models.CASCADE)
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
+                                primary_key=True)
+    account_tier = models.ForeignKey(AccountTier,
+                                     related_name='users_this_tier',
+                                     on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user} | {self.account_tier}'
 
 
 class ImageThumb(models.Model):
-    image_object = models.ForeignKey('UserImage', related_name='thumbnails', on_delete=models.CASCADE)
+    image_object = models.ForeignKey('UserImage',
+                                     related_name='thumbnails',
+                                     on_delete=models.CASCADE)
     image_file = models.ImageField(upload_to=THUMB_DIR)
     size = models.PositiveIntegerField()
     code = models.CharField(max_length=16, unique=True, null=True)
@@ -77,7 +86,8 @@ class ImageThumb(models.Model):
 class UserImage(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=get_upload_path,
-                              validators=[FileExtensionValidator(['jpg', 'png'])])
+                              validators=[FileExtensionValidator(['jpg',
+                                                                  'png'])])
     code = models.CharField(max_length=16, unique=True, default=codemaker)
 
     def create_thumbnail(self, size):
@@ -87,15 +97,20 @@ class UserImage(models.Model):
         thumb_io = BytesIO()
         im.save(thumb_io, 'PNG', quality=85)
         thumbnail = File(thumb_io, name=self.image.name)
-        img = ImageThumb.objects.create(image_object=self, size=size, image_file=thumbnail, code=codemaker())
+        img = ImageThumb.objects.create(image_object=self,
+                                        size=size,
+                                        image_file=thumbnail,
+                                        code=codemaker())
         return img
 
     def prepare_allowed_thumbs(self):
 
         account_tier = self.user.useraccounttier.account_tier
 
-        user_allowed_thumbnails = Thumbnail.objects.filter(accounttier=account_tier)
-        user_allowed_thumbnail_sizes = [thumbnail.size for thumbnail in user_allowed_thumbnails]
+        user_allowed_thumbnails = Thumbnail.objects.filter(accounttier=
+                                                           account_tier)
+        user_allowed_thumbnail_sizes = ([thumbnail.size for thumbnail in
+                                         user_allowed_thumbnails])
         user_thumbnails = ImageThumb.objects.filter(image_object=self)
 
         for thumb_size in user_allowed_thumbnail_sizes:
@@ -105,59 +120,11 @@ class UserImage(models.Model):
         for thumb in user_thumbnails:
             if not thumb.size in user_allowed_thumbnail_sizes:
                 thumb.delete()
-            if thumb.expiry_date and thumb.expiry_date.replace(tzinfo=None) < datetime.now():
+            if (thumb.expiry_date and thumb.expiry_date.replace(tzinfo=None) <
+                                      datetime.now()):
                 thumb.delete()
 
         return True
 
     def __str__(self):
         return self.image.name
-
-
-'''class MyUserManager(BaseUserManager):
-
-    def create_user(self, username, password=None):
-        if not username:
-            raise ValueError("You need to have username")
-
-        user = self.model(username=username)
-        user.set_password(password)
-        user.save(using=self._db)
-
-        return user
-
-    def create_superuser(self, username, password=None):
-        user = self.create_user(username=username, password=password)
-        user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-
-        return user
-
-
-class MyUser(AbstractBaseUser, BaseUserManager):
-    username = models.CharField(max_length=32, unique=True)
-    date_joined = models.DateTimeField(verbose_name='date joined',
-                                       auto_now_add=True)
-    last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    account_type = models.ForeignKey(AccountTier, on_delete=models.SET_NULL,
-                                     null=True)
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
-
-    objects = MyUserManager()
-
-    def __str__(self):
-        return self.username
-
-    def has_perm(self, perm, obj=None):
-        return self.is_admin
-
-    def has_module_perms(self, app_label):
-        return True'''

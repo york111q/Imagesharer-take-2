@@ -4,7 +4,9 @@ from .models import UserImage, ImageThumb
 
 
 class ImageThumbListSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="sharer:thumbnail-detail", lookup_field='code')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='sharer:thumbnail-detail',
+        lookup_field='code')
 
     class Meta:
         model = ImageThumb
@@ -28,7 +30,9 @@ class UserImageSerializer(serializers.ModelSerializer):
 
 class UserImageWithOriginalSerializer(serializers.HyperlinkedModelSerializer):
     thumbnails = ImageThumbListSerializer(many=True, read_only=True)
-    url = serializers.HyperlinkedIdentityField(view_name="sharer:userimage-detail", lookup_field='code')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='sharer:userimage-detail',
+        lookup_field='code')
 
     class Meta:
         model = UserImage
@@ -45,6 +49,6 @@ class ImageThumbSerializer(serializers.ModelSerializer):
     def validate(self, data):
         expire = int(data['expire_after_seconds'])
         if expire < 300 or expire > 30000:
-            raise serializers.ValidationError("Number of seconds should be in"
-                                              "range: 300-30000")
+            raise serializers.ValidationError('Number of seconds should be in'
+                                              'range: 300-30000')
         return data

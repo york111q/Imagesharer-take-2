@@ -6,7 +6,7 @@ class ExpiryLinksPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-         if request.method == "GET":
+         if request.method == 'GET':
              return True
          else:
              user_account = UserAccountTier.objects.get(user=request.user)

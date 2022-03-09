@@ -8,13 +8,12 @@ from rest_framework.authentication import (TokenAuthentication,
                                            SessionAuthentication)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
+from rest_framework.reverse import reverse, reverse_lazy
 from rest_framework.views import APIView
 
 from .models import UserImage, codemaker, ImageThumb, UserAccountTier
 from .permissions import ExpiryLinksPermission, OriginalImagePermission
-from .serializers import (UserImageSerializer, ImageThumbSerializer, ImageThumbListSerializer, UserImageWithOriginalSerializer, OriginalImageSerializer) #LoginSerializer,
-                          #ImageURLSerializer)
+from .serializers import (UserImageSerializer, ImageThumbSerializer, ImageThumbListSerializer, UserImageWithOriginalSerializer, OriginalImageSerializer)
 
 from datetime import timedelta, datetime
 
@@ -29,7 +28,7 @@ def api_root(request, format=None):
 
 
 class UserImageView(generics.GenericAPIView, mixins.CreateModelMixin):
-    authentication_classes = [SessionAuthentication] #TokenAuthentication,
+    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
@@ -49,7 +48,9 @@ class UserImageView(generics.GenericAPIView, mixins.CreateModelMixin):
             image.prepare_allowed_thumbs()
 
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(self.get_queryset(), many=True, context={'request': request})
+        serializer = serializer_class(self.get_queryset(),
+                                      many=True,
+                                      context={'request': request})
         return Response(serializer.data)
 
     def post(self, request):
@@ -118,9 +119,8 @@ class DetailThumbnailView(generics.GenericAPIView):
                                         code=codemaker(),
                                         expiry_date=expiry_date)
 
-        user_info = {
-                     'Created url': '/thumbnails/' + img.code,
-                     'Expire': img.expiry_date.strftime("%m/%d/%Y, %H:%M:%S")
-        }
+        user_info = reverse('sharer:thumbnail-detail',
+                            args=[img.code],
+                            request=request)
 
         return Response(user_info, status=status.HTTP_202_ACCEPTED)
